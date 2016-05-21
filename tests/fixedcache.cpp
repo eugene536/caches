@@ -6,7 +6,9 @@
 #include <thread>
 #include <iostream>
 #include <chrono>
-#include "fixedcache.hpp"
+
+#include <fixedcache.hpp>
+#include <lrucache.hpp>
 
 using namespace std;
 using namespace cache;
@@ -38,7 +40,6 @@ TEST(FixedCache, BaseFunctionality) {
         EXPECT_EQ(values[i], fixed_cache.Get(i));
     }
 }
-
 
 int main(int argc, char **argv)
 {

@@ -16,9 +16,11 @@ enum Policy {
 template <class V>
 class CacheEntry {
 public:
-    CacheEntry(const V& value)
+    explicit CacheEntry(const V& value)
         : value_(value)
     {}
+
+    virtual ~CacheEntry() {}
 
     void setValue(const V& value) {
         value_ = value;
@@ -33,14 +35,19 @@ protected:
 };
 
 template <class K, class V>
-class FixedCache
-{
+class FixedCache {
 public:
-    FixedCache(size_t max_size)
+    explicit FixedCache(size_t max_size)
         : max_size_(max_size)
     {
         cache_.reserve(max_size);
     }
+
+    virtual ~FixedCache() {}
+
+    FixedCache(const FixedCache&) = delete;
+
+    FixedCache& operator=(const FixedCache<K, V>&) = delete;
 
     size_t max_size() const {
         return max_size_;
@@ -75,7 +82,7 @@ private:
     const size_t max_size_;
     std::unordered_map<K, std::shared_ptr<CacheEntry<V>>> cache_;
     mutable std::mutex cache_mutex_;
-};
+}; // class FixedCache
 
 } // namespace Cache
 
