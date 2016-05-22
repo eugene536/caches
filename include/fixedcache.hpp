@@ -18,8 +18,6 @@ public:
 
     virtual ~FixedCache() {}
 
-    // TODO: move constructor
-
     FixedCache(const FixedCache&) = delete;
 
     FixedCache& operator=(const FixedCache<K, V>&) = delete;
