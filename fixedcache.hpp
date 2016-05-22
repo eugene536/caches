@@ -3,6 +3,7 @@
 #include <memory>
 #include <thread>
 #include <mutex>
+#include <cassert>
 
 namespace cache {
 

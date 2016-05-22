@@ -12,7 +12,12 @@ namespace cache {
 template <class K, class V>
 class LRUCache : public FixedCache<K, V> {
 private:
-    typedef std::pair<K, V> Entry;
+    struct Entry {
+        K key;
+        V value;
+    };
+
+private:
     typedef typename std::list<Entry>::iterator EntryIter;
     typedef typename std::unordered_map<K, EntryIter>::iterator CacheIter;
     typedef typename std::unordered_map<K, EntryIter>::const_iterator CacheConstIter;
@@ -35,7 +40,7 @@ private:
         EntryIter entryIter = cacheIter->second;
         entries_.splice(entries_.begin(), entries_, entryIter);
 
-        return entryIter->second;
+        return entryIter->value;
     }
 
     void PutImpl(const K& key, const V& value) override {
@@ -45,7 +50,7 @@ private:
             if (entries_.size() < this->max_size()) {
                 entries_.push_front({key, value});
             } else {
-                const K& lruKey = entries_.back().first;
+                const K& lruKey = entries_.back().key;
 
                 assert(cache_.find(lruKey) != cache_.end());
                 cache_.erase(cache_.find(lruKey));
@@ -58,7 +63,7 @@ private:
             cache_[key] = entries_.begin();
         } else { // if I found entry that I can just modify its value
             EntryIter entryIter = cacheIter->second;
-            entryIter->second = value;
+            entryIter->value = value;
             entries_.splice(entries_.begin(), entries_, entryIter);
         }
     }

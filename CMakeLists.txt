@@ -7,15 +7,23 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -pedantic -Wall -Wextra -Wno-
 
 SET(SOURCE_FILES fixedcache.hpp
                  lrucache.hpp
-                 simple_cache.hpp)
+                 simple_cache.hpp
+                 fifocache.hpp
+                 lfucache.hpp)
 
 ################################
 # Testing
 ################################
 if (test)
     SET(SOURCE_FILES ${SOURCE_FILES}
+                     tests/base_tests.hpp
+                     tests/main.cpp
+
                      tests/fixedcache.cpp
-                     tests/lrucache.cpp)
+                     tests/lrucache.cpp
+                     tests/fifocache.cpp
+                     tests/lfucache.cpp
+                     )
 
     FIND_PACKAGE(Threads)
     ENABLE_TESTING()

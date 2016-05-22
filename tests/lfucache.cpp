@@ -7,23 +7,23 @@
 #include <iostream>
 #include <chrono>
 
-#include "../lrucache.hpp"
+#include "../lfucache.hpp"
 #include "base_tests.hpp"
 
 using namespace std;
 using namespace cache;
 
-TEST(LRUCache, max_size) {
-    MaxSizeTest<LRUCache>();
+TEST(LFUCache, max_size) {
+    MaxSizeTest<LFUCache>();
 }
 
-TEST(LRUCache, SimpleTest) {
-    SimpleTest<LRUCache>();
+TEST(LFUCache, SimpleTest) {
+    SimpleTest<LFUCache>();
 }
 
-TEST(LRUCache, BasicFunctionality) {
+TEST(LFUCache, BasicFunctionality) {
     {
-        LRUCache<size_t, int> lru_cache(1);
+        LFUCache<size_t, int> lru_cache(1);
         lru_cache.Put(1, 10);
         lru_cache.Put(2, 10);
         lru_cache.Put(3, 10);
@@ -43,7 +43,7 @@ TEST(LRUCache, BasicFunctionality) {
     }
 
     {
-        LRUCache<size_t, int> lru_cache(2);
+        LFUCache<size_t, int> lru_cache(2);
         lru_cache.Put(1, 10);
         lru_cache.Put(2, 20);
         EXPECT_TRUE(lru_cache.Get(1) == 10);
@@ -59,14 +59,14 @@ TEST(LRUCache, BasicFunctionality) {
     }
 }
 
-TEST(LRUCache, RandomTests) {
+TEST(LFUCache, RandomTests) {
     const int cntTests = 1000;
     for (int test = 0; test < cntTests; ++test) {
         const int n = rand() % 100 + 1;
         const int cntValues = (rand() % 10 + 1) * n;
 //        cerr << "#" << test << " ; n = " << n << "; cntValues = " << cntValues << endl;
 
-        LRUCache<size_t, int> lru_cache(n);
+        LFUCache<size_t, int> lru_cache(n);
         vector<int> values(cntValues);
         generate(values.begin(), values.end(), rand);
 

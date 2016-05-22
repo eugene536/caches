@@ -7,76 +7,76 @@
 #include <iostream>
 #include <chrono>
 
-#include "../lrucache.hpp"
+#include "../fifocache.hpp"
 #include "base_tests.hpp"
 
 using namespace std;
 using namespace cache;
 
-TEST(LRUCache, max_size) {
-    MaxSizeTest<LRUCache>();
+TEST(FIFOCache, max_size) {
+    MaxSizeTest<FIFOCache>();
 }
 
-TEST(LRUCache, SimpleTest) {
-    SimpleTest<LRUCache>();
+TEST(FIFOCache, SimpleTest) {
+    SimpleTest<FIFOCache>();
 }
 
-TEST(LRUCache, BasicFunctionality) {
+TEST(FIFOCache, BasicFunctionality) {
     {
-        LRUCache<size_t, int> lru_cache(1);
-        lru_cache.Put(1, 10);
-        lru_cache.Put(2, 10);
-        lru_cache.Put(3, 10);
+        FIFOCache<size_t, int> fifo_cache(1);
+        fifo_cache.Put(1, 10);
+        fifo_cache.Put(2, 10);
+        fifo_cache.Put(3, 10);
 
-        EXPECT_TRUE(lru_cache.max_size() == 1);
-        EXPECT_TRUE(lru_cache.Get(3) == 10);
+        EXPECT_TRUE(fifo_cache.max_size() == 1);
+        EXPECT_TRUE(fifo_cache.Get(3) == 10);
 
         try {
-            lru_cache.Get(1);
+            fifo_cache.Get(1);
             ASSERT_TRUE(false);
         } catch(std::out_of_range& e) {}
 
         try {
-            lru_cache.Get(2);
+            fifo_cache.Get(2);
             ASSERT_TRUE(false);
         } catch(std::out_of_range& e) {}
     }
 
     {
-        LRUCache<size_t, int> lru_cache(2);
-        lru_cache.Put(1, 10);
-        lru_cache.Put(2, 20);
-        EXPECT_TRUE(lru_cache.Get(1) == 10);
-        lru_cache.Put(3, 30);
-        EXPECT_TRUE(lru_cache.max_size() == 2);
-        EXPECT_TRUE(lru_cache.Get(1) == 10);
-        EXPECT_TRUE(lru_cache.Get(3) == 30);
+        FIFOCache<size_t, int> fifo_cache(2);
+        fifo_cache.Put(1, 10);
+        fifo_cache.Put(2, 20);
+        EXPECT_TRUE(fifo_cache.Get(1) == 10);
+        fifo_cache.Put(3, 30);
+        EXPECT_TRUE(fifo_cache.max_size() == 2);
+        EXPECT_TRUE(fifo_cache.Get(2) == 20);
+        EXPECT_TRUE(fifo_cache.Get(3) == 30);
 
         try {
-            lru_cache.Get(2);
+            fifo_cache.Get(1);
             ASSERT_TRUE(false);
         } catch(std::out_of_range& e) {}
     }
 }
 
-TEST(LRUCache, RandomTests) {
+TEST(FIFOCache, RandomTests) {
     const int cntTests = 1000;
     for (int test = 0; test < cntTests; ++test) {
         const int n = rand() % 100 + 1;
         const int cntValues = (rand() % 10 + 1) * n;
 //        cerr << "#" << test << " ; n = " << n << "; cntValues = " << cntValues << endl;
 
-        LRUCache<size_t, int> lru_cache(n);
+        FIFOCache<size_t, int> fifo_cache(n);
         vector<int> values(cntValues);
         generate(values.begin(), values.end(), rand);
 
         for (int i = 0; i < cntValues; ++i)
-            lru_cache.Put(i, values[i]);
+            fifo_cache.Put(i, values[i]);
 
         // expect that last `n` values were saved
-        EXPECT_EQ(n, lru_cache.max_size());
+        EXPECT_EQ(n, fifo_cache.max_size());
         for (int i = cntValues - 1; i > cntValues - n + 1; --i) {
-            EXPECT_EQ(values[i], lru_cache.Get(i));
+            EXPECT_EQ(values[i], fifo_cache.Get(i));
         }
     }
 }
