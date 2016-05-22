@@ -7,15 +7,14 @@
 #include <iostream>
 #include <chrono>
 
-#include <fixedcache.hpp>
-#include <lrucache.hpp>
+#include "../simple_cache.hpp"
 
 using namespace std;
 using namespace cache;
 
-TEST(FixedCache, max_size) {
+TEST(SimpleCache, max_size) {
     const int n = 10;
-    FixedCache<int, int> fixed_cache(n);
+    SimpleCache<int, int> fixed_cache(n);
 
     for (int i = 0; i < n * 10; ++i) {
         fixed_cache.Put(i, i);
@@ -25,9 +24,9 @@ TEST(FixedCache, max_size) {
     }
 }
 
-TEST(FixedCache, BaseFunctionality) {
+TEST(SimpleCache, BaseFunctionality) {
     const int n = 10;
-    FixedCache<size_t, int> fixed_cache(n);
+    SimpleCache<size_t, int> fixed_cache(n);
 
     vector<int> values(n);
     generate(values.begin(), values.end(), rand);

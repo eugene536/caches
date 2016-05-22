@@ -1,38 +1,10 @@
 #ifndef FIXEDCACHE_H
 #define FIXEDCACHE_H
 #include <memory>
-#include <unordered_map>
 #include <thread>
 #include <mutex>
 
 namespace cache {
-
-enum Policy {
-    LRU,
-    LFU,
-    FIFO
-};
-
-template <class V>
-class CacheEntry {
-public:
-    explicit CacheEntry(const V& value)
-        : value_(value)
-    {}
-
-    virtual ~CacheEntry() {}
-
-    void setValue(const V& value) {
-        value_ = value;
-    }
-
-    const V& value() const {
-        return value_;
-    }
-
-protected:
-    V value_;
-};
 
 template <class K, class V>
 class FixedCache {
@@ -40,10 +12,12 @@ public:
     explicit FixedCache(size_t max_size)
         : max_size_(max_size)
     {
-        cache_.reserve(max_size);
+        assert(max_size > 0);
     }
 
     virtual ~FixedCache() {}
+
+    // TODO: move constructor
 
     FixedCache(const FixedCache&) = delete;
 
@@ -66,22 +40,13 @@ public:
     }
 
 protected:
-    virtual const V& GetImpl(const K& key) const {
-        return cache_.at(key)->value();
-    }
+    virtual const V& GetImpl(const K& key) const = 0;
 
-    virtual void PutImpl(const K& key, const V& value) {
-        if (cache_.size() == max_size_) {
-            cache_.erase(cache_.begin());
-        }
-
-        cache_[key] = std::make_shared<CacheEntry<V>>(value);
-    }
+    virtual void PutImpl(const K& key, const V& value) = 0;
 
 private:
-    const size_t max_size_;
-    std::unordered_map<K, std::shared_ptr<CacheEntry<V>>> cache_;
     mutable std::mutex cache_mutex_;
+    const size_t max_size_;
 }; // class FixedCache
 
 } // namespace Cache
