@@ -2,6 +2,7 @@
 #define LFUCACHE_HPP
 
 #include <memory>
+#include <vector>
 #include <list>
 #include <exception>
 #include <sstream>
@@ -35,7 +36,8 @@ private:
 public:
     explicit LFUCache(size_t max_size)
         : BaseCache(max_size)
-        , minFr_(0)
+        , frToIters_(max_size)
+        , minFr_(-1)
     {}
 
 private:
@@ -53,51 +55,74 @@ private:
         return entryIter->value;
     }
 
+    void PutImpl(const K& key, const V& value) override {
+        CacheIter cacheIter = cache_.find(key);
+
+        if (cacheIter == cache_.end()) {
+            if (entries_.size() < this->max_size()) {
+                entries_.push_back({0, 0, key, value});
+                frToIters_[0].push_back(std::prev(entries_.end()));
+                entries_.back().pos = frToIters_[0].size() - 1;
+                minFr_ = 0;
+
+                cache_[key] = std::prev(entries_.end());
+            } else {
+                assert((int) frToIters_.size() > minFr_);
+                assert(!frToIters_[minFr_].empty());
+
+                EntryIter lfuEntry = *std::prev(frToIters_[minFr_].end());
+
+                assert(cache_.find(lfuEntry->key) != cache_.end());
+                cache_.erase(cache_.find(lfuEntry->key));
+                frToIters_[minFr_].pop_back();
+
+                *lfuEntry = {0, 0, key, value};
+                cache_[key] = lfuEntry;
+                frToIters_[0].push_back(lfuEntry);
+                lfuEntry->pos = frToIters_[0].size() - 1;
+                minFr_ = 0;
+            }
+        } else {
+            EntryIter entryIter = cacheIter->second;
+            entryIter->value = value;
+            MoveToTheNextFr(entryIter);
+        }
+    }
+
     void MoveToTheNextFr(EntryIter& entryIter) const {
+        if (entryIter->fr == this->max_size() - 1) return;
+
         std::vector<EntryIter>& entrs = frToIters_.at(entryIter->fr);
 
         size_t posCurEntry = entryIter->pos;
         assert(entrs.size() > posCurEntry);
 
-        std::swap(entrs[posCurEntry], entrs.back());
-        entrs[posCurEntry]->pos = posCurEntry;
+        if (posCurEntry != entrs.size() - 1) {
+            std::swap(entrs[posCurEntry], entrs.back());
+            entrs[posCurEntry]->pos = posCurEntry;
+        }
+
         entrs.pop_back();
 
-        entryIter->fr = std::max(this->max_size() - 1, entryIter->fr + 1);
+        if (entrs.size() == 0 && minFr_ == (int) entryIter->fr) {
+            minFr_++;
+
+            assert(minFr_ < (int) this->max_size());
+        }
+
+
+
+        entryIter->fr = entryIter->fr + 1;
         std::vector<EntryIter>& nextEntrs = frToIters_[entryIter->fr];
         nextEntrs.push_back(entryIter);
         entryIter->pos = nextEntrs.size() - 1;
-    }
 
-    void PutImpl(const K& key, const V& value) override {
-//        CacheIter cacheIter = cache_.find(key);
-
-//        if (cacheIter == cache_.end()) {
-//            if (entries_.size() < this->max_size()) {
-//                entries_.push_front({key, value});
-//            } else {
-//                const K& lruKey = entries_.back().first;
-
-//                assert(cache_.find(lruKey) != cache_.end());
-//                cache_.erase(cache_.find(lruKey));
-
-//                entries_.splice(entries_.begin(), entries_, std::prev(entries_.end()));
-
-//                *entries_.begin() = {key, value};
-//            }
-
-//            cache_[key] = entries_.begin();
-//        } else { // if I found entry that I can just modify its value
-//            EntryIter entryIter = cacheIter->second;
-//            entryIter->second = value;
-//            entries_.splice(entries_.begin(), entries_, entryIter);
-//        }
     }
 
 private:
     std::unordered_map<K, EntryIter> cache_;
     mutable std::vector<std::vector<EntryIter>> frToIters_;
-    size_t minFr_;
+    mutable int minFr_;
     mutable std::list<Entry> entries_;
 };
 
