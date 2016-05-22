@@ -10,10 +10,7 @@ ELSE()
     SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -O2")
 ENDIF()
 
-SET(SOURCE_FILES main/fixedcache.hpp
-                 main/lrucache.hpp
-                 main/fifocache.hpp
-                 main/lfucache.hpp)
+INCLUDE_DIRECTORIES(${CMAKE_SOURCE_DIR}/include)
 
 IF (test)
     SET(SOURCE_FILES ${SOURCE_FILES}
@@ -28,10 +25,11 @@ IF (test)
 
      ADD_SUBDIRECTORY(gtest)
      ENABLE_TESTING()
+     INCLUDE_DIRECTORIES(${gtest_SOURCE_DIR}/include ${gtest_SOURCE_DIR})
      ADD_EXECUTABLE(FixedCache  ${SOURCE_FILES})
      TARGET_LINK_LIBRARIES(FixedCache gtest gtest_main)
 ELSE()
-    SET(SOURCE_FILES ${SOURCE_FILES} main.cpp)
+    SET(SOURCE_FILES ${SOURCE_FILES} main/main.cpp)
 
     ADD_EXECUTABLE(FixedCache ${SOURCE_FILES})
 ENDIF()

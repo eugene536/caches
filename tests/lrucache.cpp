@@ -7,7 +7,7 @@
 #include <iostream>
 #include <chrono>
 
-#include "../main/lrucache.hpp"
+#include <lrucache.hpp>
 #include "base_tests.hpp"
 
 using namespace std;
