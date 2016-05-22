@@ -63,7 +63,7 @@ private:
         entrs[posCurEntry]->pos = posCurEntry;
         entrs.pop_back();
 
-        entryIter->fr++;
+        entryIter->fr = std::max(this->max_size() - 1, entryIter->fr + 1);
         std::vector<EntryIter>& nextEntrs = frToIters_[entryIter->fr];
         nextEntrs.push_back(entryIter);
         entryIter->pos = nextEntrs.size() - 1;

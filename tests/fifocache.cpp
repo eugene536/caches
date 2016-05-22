@@ -7,7 +7,7 @@
 #include <iostream>
 #include <chrono>
 
-#include "../fifocache.hpp"
+#include "../main/fifocache.hpp"
 #include "base_tests.hpp"
 
 using namespace std;
