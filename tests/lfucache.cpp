@@ -60,25 +60,30 @@ TEST(LFUCache, BasicFunctionality) {
 }
 
 TEST(LFUCache, RandomTests) {
-    const int cntTests = 1000;
-    for (int test = 0; test < cntTests; ++test) {
+    const int kCntTests = 1000;
+    for (int test = 0; test < kCntTests; ++test) {
         const int n = rand() % 100 + 1;
-        const int cntValues = (rand() % 10 + 1) * n;
+        const int kCntValues = (rand() % 10 + 1) * n;
 
         LFUCache<size_t, int> lfu_cache(n);
-        vector<int> values(cntValues);
+        vector<int> values(kCntValues);
         generate(values.begin(), values.end(), rand);
 
-        for (int i = cntValues - 1; i >= 0; --i) {
+        for (int i = kCntValues - 1; i >= 0; --i) {
             lfu_cache.Put(i, values[i]);
-            if (i >= cntValues - n)
+            if (i >= kCntValues - n)
                 EXPECT_EQ(lfu_cache.Get(i), values[i]);
         }
 
         // expect that last (`n` - 1) values and the first one were saved
         EXPECT_EQ(n, lfu_cache.max_size());
-        for (int i = cntValues - 1; i > cntValues - n; --i)
+        for (int i = kCntValues - 1; i > kCntValues - n; --i)
             EXPECT_EQ(values[i], lfu_cache.Get(i));
         EXPECT_EQ(values[0], lfu_cache.Get(0));
     }
 }
+
+TEST(LFUCache, ThreadSafety) {
+    ThreadSafetyTest<LFUCache>();
+}
+

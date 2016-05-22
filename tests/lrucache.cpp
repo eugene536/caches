@@ -80,3 +80,8 @@ TEST(LRUCache, RandomTests) {
         }
     }
 }
+
+
+TEST(LRUCache, ThreadSafety) {
+    ThreadSafetyTest<LRUCache>();
+}

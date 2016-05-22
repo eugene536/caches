@@ -7,7 +7,6 @@ SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++1y -pedantic -Wall -Wextra -Wno-
 
 SET(SOURCE_FILES main/fixedcache.hpp
                  main/lrucache.hpp
-                 main/simple_cache.hpp
                  main/fifocache.hpp
                  main/lfucache.hpp)
 
@@ -19,7 +18,6 @@ if (test)
                      tests/base_tests.hpp
                      tests/main.cpp
 
-                     tests/fixedcache.cpp
                      tests/lrucache.cpp
                      tests/fifocache.cpp
                      tests/lfucache.cpp

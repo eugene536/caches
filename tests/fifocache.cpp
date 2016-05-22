@@ -80,3 +80,7 @@ TEST(FIFOCache, RandomTests) {
         }
     }
 }
+
+TEST(FIFOCache, ThreadSafety) {
+    ThreadSafetyTest<FIFOCache>();
+}

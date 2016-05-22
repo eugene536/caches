@@ -37,4 +37,37 @@ void SimpleTest() {
     }
 }
 
+template<template<class, class> class Cache>
+void ThreadSafetyTest() {
+    using namespace std;
+
+    const int kCntTests = 1000;
+    for (int i = 0; i < kCntTests; ++i) {
+        const int n = rand() % 100 + 1;
+        Cache<int, int> cache(n);
+
+        vector<int> temp(n);
+        generate(temp.begin(), temp.end(), rand);
+
+        const int kCntThreads = 4;
+        vector<thread> threads(kCntThreads);
+
+        for (thread& t: threads) {
+            t = thread([&]() {
+                for (int i = 0; i < n; ++i) {
+                    cache.Put(i, temp[rand() % n]);
+                }
+            });
+        }
+
+        for (thread& t: threads)
+            t.join();
+
+        EXPECT_EQ(cache.max_size(), n);
+        set<int> values(temp.begin(), temp.end());
+        for (int i = 0; i < n; ++i)
+            EXPECT_TRUE(values.count(cache.Get(i)) > 0);
+    }
+}
+
 #endif // BASE_TESTS_HPP
